@@ -1,0 +1,35 @@
+
+
+Running
+
+Fully Configurable
+
+Distributed
+
+Atomic Locking
+
+Thread Safe
+
+Priority Support
+
+Worker Timeout Support
+
+Fully Tested
+
+Production Ready
+
+Simple API
+
+
+--------------------------
+
+
+
+Per Queue error queues
+
+Max attempts per item
+
+
+Identity in queue.
+
+---------------------------
