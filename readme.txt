@@ -53,7 +53,7 @@ An item can be fetched out by calling the ``next`` method on a queue.
 This returns a Job object.
 
   >> job = queue.next()
-  >> job.data
+  >> job.payload
   {"foobar": 1}
 
 The job class exposes some control methods on the job, for marking progress,
@@ -72,7 +72,7 @@ completion, errors, or releasing the job back into the queue.
 As a convience the job supports the context manager protocol.
 
   >> with job as data:
-  ...   print data
+  ...   print data['payload']
 
   {"foobar: 0}
 
@@ -100,6 +100,7 @@ Unit tests can be run with
 Changes
 =======
 
+0.6.0 - Feb 4th, 2013 - Isolate passed in data from metadata in Job.
 0.5.2 - Dec 9th, 2012 - Fix for regression in sort parameters from pymongo 2.4
 0.5.1 - Dec 2nd, 2012 - Packaging fix for readme data file.
 
@@ -108,3 +109,4 @@ Credits
 
 Kapil Thangavelu, author & maintainer
 Dustin Laurence, sort fix for pymongo 2.4
+Jonathan Sackett, Job data isolation.
