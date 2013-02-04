@@ -22,7 +22,7 @@ class MongoQueueTest(TestCase):
 
     def assert_job_equal(self, job, data):
         for k, v in data.items():
-            self.assertEqual(job.data[k], v)
+            self.assertEqual(job.payload[k], v)
 
     def test_put_next(self):
         data = {"context_id": "alpha",
@@ -47,9 +47,9 @@ class MongoQueueTest(TestCase):
             "priority": 0, "name": "mike"})
         self.assertEqual(
             ["bob", "alice", "mike"],
-            [self.queue.next().data['name'],
-             self.queue.next().data['name'],
-             self.queue.next().data['name']])
+            [self.queue.next().payload['name'],
+             self.queue.next().payload['name'],
+             self.queue.next().payload['name']])
 
     def test_complete(self):
         data = {"context_id": "alpha",
@@ -101,7 +101,7 @@ class MongoQueueTest(TestCase):
         job = self.queue.next()
         try:
             with job as data:
-                self.assertEqual(data["foobar"], 1)
+                self.assertEqual(data['payload']["foobar"], 1)
                 # Item is returned to the queue on error
                 raise SyntaxError
         except SyntaxError:
@@ -114,6 +114,6 @@ class MongoQueueTest(TestCase):
         self.queue.put({"foobar": 1})
         job = self.queue.next()
         with job as data:
-            self.assertEqual(data["foobar"], 1)
+            self.assertEqual(data['payload']["foobar"], 1)
         job = self.queue.next()
         self.assertEqual(job, None)

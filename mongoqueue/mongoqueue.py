@@ -70,11 +70,11 @@ class MongoQueue(object):
                 "$inc": {"attempts": 1}}
         )
 
-    def put(self, job_info):
+    def put(self, payload):
         """Place a job into the queue
         """
         job = dict(DEFAULT_INSERT)
-        job.update(job_info)
+        job['payload'] = payload
         return self.collection.insert(job)
 
     def next(self):
@@ -131,6 +131,10 @@ class Job(object):
     @property
     def data(self):
         return self._data
+
+    @property
+    def payload(self):
+        return self._data['payload']
 
     @property
     def job_id(self):
