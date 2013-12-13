@@ -8,6 +8,47 @@ import pymongo
 from unittest import TestCase
 
 from mongoqueue import MongoQueue
+from lock import MongoLock, lock
+
+
+class MongoLockTest(TestCase):
+
+    def setUp(self):
+        self.client = pymongo.Connection(os.environ.get("TEST_MONGODB"))
+        self.db = self.client.test_queue
+        self.collection = self.db.locks
+
+    def tearDown(self):
+        self.client.drop_database("test_queue")
+
+    def test_lock_acquire_release_context_manager(self):
+        with lock(self.collection, 'test1') as l:
+            self.assertTrue(l.locked)
+        self.assertEqual(self.collection.find().count(), 0)
+
+    def test_auto_expires_old(self):
+        lock = MongoLock(self.collection, 'test2', lease=2)
+        self.assertTrue(lock.acquire())
+
+        time.sleep(2.2)
+        # Reports truthfully it doesn't have the local anymore,
+        # using ttl time, stale db record extant.
+        self.assertFalse(lock.locked)
+
+        lock2 = MongoLock(self.collection, 'test2')
+        # New lock acquire will take ownership based on old ttl\
+        self.assertTrue(lock2.acquire())
+
+        # Releasing the original doesn't change ownership
+        self.assertTrue(lock.release())
+        records = list(self.collection.find())
+        self.assertEqual(len(records), 1)
+
+        self.assertEqual(records.pop()['client_id'], lock2.client_id)
+        self.assertFalse(lock.acquire(wait=False))
+
+        lock2.release()
+        self.assertFalse(list(self.collection.find()))
 
 
 class MongoQueueTest(TestCase):
@@ -37,14 +78,10 @@ class MongoQueueTest(TestCase):
         self.assertEqual(job, None)
 
     def test_priority(self):
-        data = {"priority": 1,
-                "name": "hello world"}
-        self.queue.put({
-            "priority": 1, "name": "alice"})
-        self.queue.put({
-            "priority": 2, "name": "bob"})
-        self.queue.put({
-            "priority": 0, "name": "mike"})
+        self.queue.put({"name": "alice"}, priority=1)
+        self.queue.put({"name": "bob"}, priority=2)
+        self.queue.put({"name": "mike"}, priority=0)
+
         self.assertEqual(
             ["bob", "alice", "mike"],
             [self.queue.next().payload['name'],
