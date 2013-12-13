@@ -83,11 +83,11 @@ if there's an exception the error is stored on the job.
 Inspired By
 ===========
 
-[0] https://github.com/skiz/mongo_queue/blob/master/lib/mongo_queue.rb
-[1] http://blog.boxedice.com/2011/09/28/replacing-rabbitmq-with-mongodb/
-[2] http://blog.boxedice.com/2011/04/13/queueing-mongodb-using-mongodb/
-[3] https://github.com/lunaru/mongoqueue
-[4] http://www.captaincodeman.com/2011/05/28/simple-service-bus-message-queue-mongodb/
+- [0] https://github.com/skiz/mongo_queue/blob/master/lib/mongo_queue.rb
+- [1] http://blog.boxedice.com/2011/09/28/replacing-rabbitmq-with-mongodb/
+- [2] http://blog.boxedice.com/2011/04/13/queueing-mongodb-using-mongodb/
+- [3] https://github.com/lunaru/mongoqueue
+- [4] http://www.captaincodeman.com/2011/05/28/simple-service-bus-message-queue-mongodb/
 
 
 Running Tests
