@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='mongoqueue',
-      version="0.7.1",
+      version="0.7.2",
       classifiers=[
           'Intended Audience :: Developers',
           'Programming Language :: Python',

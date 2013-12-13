@@ -21,7 +21,7 @@ Usage
 
 A queue can be instantiated with a mongo collection and a consumer
 identifier. The consumer identifier helps distinguish multiple queue
-consumers that are taking jobs from the queue.
+consumers that are taking jobs from the queue::
 
   >> from pymongo import Connection
   >> from mongoqueue import MongoQueue
@@ -39,18 +39,18 @@ A job which timeouts or errors more than the ``max_attempts``
 parameter is considered permanently failed, and will no longer be
 processed.
 
-New jobs/items can be placed in the queue by passing a dictionary.
+New jobs/items can be placed in the queue by passing a dictionary::
 
   >> queue.put({"foobar": 1})
 
 A job ``priority`` key and integer value can be specified in the
 dictionary which will cause the job to be processed before lower
-priority items.
+priority items::
 
-  >> queue.put({"foobar": 0, "priority": 1})
+  >> queue.put({"foobar": 0}, priority=1})
 
 An item can be fetched out by calling the ``next`` method on a queue.
-This returns a Job object.
+This returns a Job object::
 
   >> job = queue.next()
   >> job.payload
@@ -69,7 +69,7 @@ completion, errors, or releasing the job back into the queue.
 
   - ``release`` Release a job back to the pool. The attempts counter is not modified.
 
-As a convience the job supports the context manager protocol.
+As a convience the job supports the context manager protocol::
 
   >> with job as data:
   ...   print data['payload']
