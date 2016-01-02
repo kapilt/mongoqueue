@@ -96,6 +96,14 @@ class MongoQueue(object):
             limit=1
         ))
 
+    def _jobs(self):
+        return self.collection.find(
+            query={"locked_by": None,
+                   "locked_at": None,
+                   "attempts": {"$lt": self.max_attempts}},
+            sort=[('priority', pymongo.DESCENDING)],
+        )
+
     def _wrap_one(self, data):
         return data and Job(self, data) or None
 
@@ -117,9 +125,8 @@ class MongoQueue(object):
            var t = db.%(collection)s.count();
            return [a, l, e, t];
            })}""" % {
-               "collection": self.collection.name,
-               "max_attempts": self.max_attempts
-           }
+             "collection": self.collection.name,
+             "max_attempts": self.max_attempts}
 
         return dict(zip(
             ["available", "locked", "errors", "total"],
@@ -178,7 +185,7 @@ class Job(object):
             {"_id": self.job_id, "locked_by": self._queue.consumer_id},
             update={"$set": {
                 "locked_by": None, "locked_at": None, "last_error": message},
-                    "$inc": {"attempts": 1}})
+                "$inc": {"attempts": 1}})
 
     def progress(self, count=0):
         """Note progress on a long running task.
