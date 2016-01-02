@@ -20,7 +20,6 @@ import traceback
 
 
 DEFAULT_INSERT = {
-    "priority": 0,
     "attempts": 0,
     "locked_by": None,
     "locked_at": None,
@@ -70,10 +69,18 @@ class MongoQueue(object):
                 "$inc": {"attempts": 1}}
         )
 
-    def put(self, payload):
+    def drop_max_attempts(self):
+        """
+        """
+        self.collection.find_and_modify(
+            {"attempts": {"$gte": self.max_attempts}},
+            remove=True)
+
+    def put(self, payload, priority=0):
         """Place a job into the queue
         """
         job = dict(DEFAULT_INSERT)
+        job['priority'] = priority
         job['payload'] = payload
         return self.collection.insert(job)
 
@@ -82,8 +89,7 @@ class MongoQueue(object):
             query={"locked_by": None,
                    "locked_at": None,
                    "attempts": {"$lt": self.max_attempts}},
-            update={"$set": {"attempts": 1,
-                             "locked_by": self.consumer_id,
+            update={"$set": {"locked_by": self.consumer_id,
                              "locked_at": datetime.now()}},
             sort=[('priority', pymongo.DESCENDING)],
             new=1,
@@ -129,16 +135,32 @@ class Job(object):
         self._data = data
 
     @property
-    def data(self):
-        return self._data
-
-    @property
     def payload(self):
         return self._data['payload']
 
     @property
     def job_id(self):
         return self._data["_id"]
+
+    @property
+    def priority(self):
+        return self._data["priority"]
+
+    @property
+    def attempts(self):
+        return self._data["attempts"]
+
+    @property
+    def locked_by(self):
+        return self._data["locked_by"]
+
+    @property
+    def locked_at(self):
+        return self._data["locked_at"]
+
+    @property
+    def last_error(self):
+        return self._data["last_error"]
 
     ## Job Control
 
@@ -176,7 +198,7 @@ class Job(object):
     ## Context Manager support
 
     def __enter__(self):
-        return self.data
+        return self._data
 
     def __exit__(self, type, value, tb):
         if (type, value, tb) == (None, None, None):
