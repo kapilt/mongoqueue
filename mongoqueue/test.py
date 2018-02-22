@@ -7,8 +7,8 @@ from datetime import datetime
 import pymongo
 from unittest import TestCase
 
-from mongoqueue import MongoQueue
-from lock import MongoLock, lock
+from .mongoqueue import MongoQueue
+from .lock import MongoLock, lock
 
 
 class MongoLockTest(TestCase):
